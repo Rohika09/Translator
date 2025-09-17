@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import axios from 'axios';
 
 const LANGUAGES = [
@@ -20,7 +21,21 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [ttsLoading, setTtsLoading] = useState(false);
-const [ttsError, setTtsError] = useState('');
+  const [ttsError, setTtsError] = useState('');
+
+  // react-speech-recognition setup
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  useEffect(() => {
+    if (transcript) {
+      setFromText(transcript);
+    }
+  }, [transcript]);
 
   const handleTranslate = async () => {
     setLoading(true);
@@ -64,13 +79,35 @@ const [ttsError, setTtsError] = useState('');
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
       <h1 className="text-2xl font-bold mb-4">Tourist Translator</h1>
-      <textarea
-        className="w-full border rounded p-2 mb-3"
-        rows={4}
-        placeholder="Enter text to translate..."
-        value={fromText}
-        onChange={e => setFromText(e.target.value)}
-      />
+      <div className="mb-2">
+        <textarea
+          className="w-full border rounded p-2 mb-1"
+          rows={4}
+          placeholder="Enter text to translate or use speech..."
+          value={fromText}
+          onChange={e => setFromText(e.target.value)}
+        />
+        <div className="flex items-center gap-2">
+          <button
+            className={`px-3 py-1 rounded ${listening ? 'bg-red-600' : 'bg-blue-600'} text-white hover:bg-blue-700 disabled:opacity-50`}
+            type="button"
+            onClick={() => {
+              if (!listening) {
+                resetTranscript();
+                SpeechRecognition.startListening({ continuous: false, language: fromLang });
+              } else {
+                SpeechRecognition.stopListening();
+              }
+            }}
+            disabled={!browserSupportsSpeechRecognition}
+          >
+            {listening ? 'Stop Listening' : '🎤 Speak'}
+          </button>
+          {!browserSupportsSpeechRecognition && (
+            <span className="text-red-600">Speech recognition not supported</span>
+          )}
+        </div>
+      </div>
       <div className="flex gap-2 mb-3">
         <select
           className="border rounded p-2 flex-1"
