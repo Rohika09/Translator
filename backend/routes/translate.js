@@ -1,21 +1,39 @@
 const express = require('express');
-const axios = require('axios');
+const { translate, speak } = require('google-translate-api-x');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
   const { text, fromLang, toLang } = req.body;
+  if (!text || !fromLang || !toLang) {
+    return res.status(400).json({ error: 'Missing required fields: text, fromLang, toLang.' });
+  }
   try {
-    const response = await axios.post('https://libretranslate.de/translate', {
-      q: text,
-      source: fromLang,
-      target: toLang,
-      format: 'text',
-    }, {
-      headers: { 'accept': 'application/json' }
+    const result = await translate(text, { from: fromLang, to: toLang, client: 'gtx', autoCorrect: true });
+    res.json({
+      translatedText: result.text,
+      detectedSourceLanguage: result.from.language.iso,
+      didYouMean: result.from.text.didYouMean,
+      autoCorrected: result.from.text.autoCorrected,
+      value: result.from.text.value
     });
-    res.json({ translatedText: response.data.translatedText || response.data.translated_text });
   } catch (err) {
+    console.error('Translation error:', err.message);
     res.status(500).json({ error: 'Translation failed.' });
+  }
+});
+
+// TTS endpoint
+router.post('/speak', async (req, res) => {
+  const { text, lang } = req.body;
+  if (!text || !lang) {
+    return res.status(400).json({ error: 'Missing required fields: text, lang.' });
+  }
+  try {
+    const audioBase64 = await speak(text, { to: lang });
+    res.json({ audio: audioBase64 });
+  } catch (err) {
+    console.error('TTS error:', err.message);
+    res.status(500).json({ error: 'TTS failed.' });
   }
 });
 

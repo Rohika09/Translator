@@ -19,6 +19,8 @@ export default function Home() {
   const [translatedText, setTranslatedText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [ttsLoading, setTtsLoading] = useState(false);
+const [ttsError, setTtsError] = useState('');
 
   const handleTranslate = async () => {
     setLoading(true);
@@ -37,6 +39,27 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  const handleSpeak = async () => {
+  setTtsLoading(true);
+  setTtsError('');
+  try {
+    const res = await axios.post('/api/translate/speak', {
+      text: translatedText,
+      lang: toLang,
+    });
+    if (res.data.audio) {
+      const audio = new Audio('data:audio/mp3;base64,' + res.data.audio);
+      audio.play();
+    } else {
+      setTtsError('No audio received.');
+    }
+  } catch (err) {
+    setTtsError('Speech failed.');
+  } finally {
+    setTtsLoading(false);
+  }
+};
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
@@ -78,11 +101,22 @@ export default function Home() {
       </button>
       {error && <div className="text-red-600 mt-2">{error}</div>}
       <div className="mt-4">
-        <label className="block font-semibold mb-1">Translation:</label>
-        <div className="min-h-[48px] border rounded p-2 bg-gray-50">
-          {translatedText}
-        </div>
-      </div>
+  <label className="block font-semibold mb-1">Translation:</label>
+  <div className="min-h-[48px] border rounded p-2 bg-gray-50 flex items-center justify-between">
+    <span>{translatedText}</span>
+    {translatedText && (
+      <button
+        className="ml-2 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 disabled:opacity-50"
+        onClick={handleSpeak}
+        disabled={ttsLoading}
+        title="Play Speech"
+      >
+        {ttsLoading ? 'Speaking...' : '🔊'}
+      </button>
+    )}
+  </div>
+  {ttsError && <div className="text-red-600 mt-2">{ttsError}</div>}
+</div>
     </div>
   );
 }
