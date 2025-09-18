@@ -12,6 +12,7 @@
     "multer": "^2.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0",
     "react-speech-recognition": "^4.0.1",
     "scribe.js-ocr": "^0.9.0",
     "tesseract.js": "^6.0.1"
