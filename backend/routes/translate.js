@@ -1,5 +1,5 @@
-const express = require('express');
-const { translate, speak } = require('google-translate-api-x');
+import express from 'express';
+import { translate, speak } from 'google-translate-api-x';
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -37,4 +37,4 @@ router.post('/speak', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

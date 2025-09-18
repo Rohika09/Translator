@@ -1,10 +1,13 @@
 // Express route for PDF/image upload and OCR
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import * as Tesseract from 'tesseract.js';
 
-const Tesseract = require('tesseract.js');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -36,4 +39,4 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

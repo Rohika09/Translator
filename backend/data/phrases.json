@@ -1,0 +1,164 @@
+{
+  "emergency": [
+    {
+      "english": "Call the police!",
+      "hindi": "पुलिस को बुलाओ!",
+      "telugu": "పోలీసులను పిలవండి!",
+      "spanish": "¡Llama a la policía!",
+      "audio": {
+        "english": "call_police_en.mp3",
+        "hindi": "call_police_hi.mp3",
+        "telugu": "call_police_te.mp3",
+        "spanish": "call_police_es.mp3"
+      }
+    },
+    {
+      "english": "Where is the hospital?",
+      "hindi": "अस्पताल कहाँ है?",
+      "telugu": "ఆసుపత్రి ఎక్కడ ఉంది?",
+      "spanish": "¿Dónde está el hospital?",
+      "audio": {
+        "english": "hospital_en.mp3",
+        "hindi": "hospital_hi.mp3",
+        "telugu": "hospital_te.mp3",
+        "spanish": "hospital_es.mp3"
+      }
+    },
+    {
+      "english": "I need a doctor!",
+      "hindi": "मुझे डॉक्टर की जरूरत है!",
+      "telugu": "నాకు డాక్టర్ అవసరం!",
+      "spanish": "¡Necesito un médico!",
+      "audio": {
+        "english": "need_doctor_en.mp3",
+        "hindi": "need_doctor_hi.mp3",
+        "telugu": "need_doctor_te.mp3",
+        "spanish": "need_doctor_es.mp3"
+      }
+    },
+    {
+      "english": "Help me!",
+      "hindi": "मेरी मदद करो!",
+      "telugu": "నాకు సహాయం చేయండి!",
+      "spanish": "¡Ayúdame!",
+      "audio": {
+        "english": "help_me_en.mp3",
+        "hindi": "help_me_hi.mp3",
+        "telugu": "help_me_te.mp3",
+        "spanish": "help_me_es.mp3"
+      }
+    },
+    {
+      "english": "Fire!",
+      "hindi": "आग!",
+      "telugu": "మంట!",
+      "spanish": "¡Fuego!",
+      "audio": {
+        "english": "fire_en.mp3",
+        "hindi": "fire_hi.mp3",
+        "telugu": "fire_te.mp3",
+        "spanish": "fire_es.mp3"
+      }
+    }
+  ],
+  "travel": [
+    {
+      "english": "How much does this cost?",
+      "hindi": "यह कितने का है?",
+      "telugu": "ఇది ఎంత ఖరీదు?",
+      "spanish": "¿Cuánto cuesta esto?",
+      "audio": {
+        "english": "how_much_en.mp3",
+        "hindi": "how_much_hi.mp3",
+        "telugu": "how_much_te.mp3",
+        "spanish": "how_much_es.mp3"
+      }
+    },
+    {
+      "english": "Where is the bathroom?",
+      "hindi": "बाथरूम कहां है?",
+      "telugu": "బాత్రూమ్ ఎక్కడ ఉంది?",
+      "spanish": "¿Dónde está el baño?",
+      "audio": {
+        "english": "bathroom_en.mp3",
+        "hindi": "bathroom_hi.mp3",
+        "telugu": "bathroom_te.mp3",
+        "spanish": "bathroom_es.mp3"
+      }
+    },
+    {
+      "english": "I don't understand",
+      "hindi": "मैं समझ नहीं पा रहा हूँ",
+      "telugu": "నాకు అర్థం కాలేదు",
+      "spanish": "No entiendo",
+      "audio": {
+        "english": "dont_understand_en.mp3",
+        "hindi": "dont_understand_hi.mp3",
+        "telugu": "dont_understand_te.mp3",
+        "spanish": "dont_understand_es.mp3"
+      }
+    },
+    {
+      "english": "Can you help me?",
+      "hindi": "क्या आप मेरी मदद कर सकते हैं?",
+      "telugu": "మీరు నాకు సహాయం చేయగలరా?",
+      "spanish": "¿Puede ayudarme?",
+      "audio": {
+        "english": "can_help_en.mp3",
+        "hindi": "can_help_hi.mp3",
+        "telugu": "can_help_te.mp3",
+        "spanish": "can_help_es.mp3"
+      }
+    }
+  ],
+  "essentials": [
+    {
+      "english": "I need water",
+      "hindi": "मुझे पानी चाहिए",
+      "telugu": "నాకు నీరు కావాలి",
+      "spanish": "Necesito agua",
+      "audio": {
+        "english": "need_water_en.mp3",
+        "hindi": "need_water_hi.mp3",
+        "telugu": "need_water_te.mp3",
+        "spanish": "need_water_es.mp3"
+      }
+    },
+    {
+      "english": "I am hungry",
+      "hindi": "मुझे भूख लगी है",
+      "telugu": "నాకు ఆకలిగా ఉంది",
+      "spanish": "Tengo hambre",
+      "audio": {
+        "english": "hungry_en.mp3",
+        "hindi": "hungry_hi.mp3",
+        "telugu": "hungry_te.mp3",
+        "spanish": "hungry_es.mp3"
+      }
+    },
+    {
+      "english": "Where can I find a hotel?",
+      "hindi": "मुझे होटल कहां मिल सकता है?",
+      "telugu": "నేను హోటల్ ఎక్కడ కనుగొనగలను?",
+      "spanish": "¿Dónde puedo encontrar un hotel?",
+      "audio": {
+        "english": "find_hotel_en.mp3",
+        "hindi": "find_hotel_hi.mp3",
+        "telugu": "find_hotel_te.mp3",
+        "spanish": "find_hotel_es.mp3"
+      }
+    },
+    {
+      "english": "How do I get to the airport?",
+      "hindi": "मैं हवाई अड्डे तक कैसे पहुंचूं?",
+      "telugu": "నేను విమానాశ్రయానికి ఎలా చేరుకోగలను?",
+      "spanish": "¿Cómo llego al aeropuerto?",
+      "audio": {
+        "english": "airport_en.mp3",
+        "hindi": "airport_hi.mp3",
+        "telugu": "airport_te.mp3",
+        "spanish": "airport_es.mp3"
+      }
+    }
+  ]
+}
