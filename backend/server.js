@@ -5,6 +5,7 @@ import ocrRoutes from './routes/ocr.js';
 import phrasesRoutes from './routes/phrases.js';
 import translateRoutes from './routes/translate.js';
 import ttsRoutes from './routes/tts.js';
+import currencyRoutes from './routes/currency.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -19,6 +20,7 @@ app.use('/api/ocr', ocrRoutes);
 app.use('/api/phrases', phrasesRoutes);
 app.use('/api/translate', translateRoutes);
 app.use('/api/translate/speak', ttsRoutes);
+app.use('/api/currency', currencyRoutes);
 
 // Default route
 app.get('/', (req, res) => {
