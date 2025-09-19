@@ -3,12 +3,12 @@
 
 import { detectPDFType } from './detectPDFType.js';
 import { extract } from './extract.js';
-import {
-  check,
-  conf,
-  debug,
-  evalInternal, overlay, recognize,
-} from './main.js';
+// import {
+//   check,
+//   conf,
+//   debug,
+//   evalInternal, overlay, recognize,
+// } from './main.js';
 
 export async function extractTextFromPDF(inputFile, outputDir = '.', options = {}) {
   await extract(inputFile, outputDir, options);

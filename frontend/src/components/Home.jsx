@@ -11,7 +11,6 @@ const LANGUAGES = [
   { code: 'de', name: 'German' },
   { code: 'zh', name: 'Chinese' },
   { code: 'ar', name: 'Arabic' },
-  // Add more as needed
 ];
 
 export default function Home() {
@@ -23,9 +22,8 @@ export default function Home() {
   const [error, setError] = useState('');
   const [ttsLoading, setTtsLoading] = useState(false);
   const [ttsError, setTtsError] = useState('');
-  const [conversationDirection, setConversationDirection] = useState('userToOther'); // 'userToOther' or 'otherToUser'
+  const [conversationDirection, setConversationDirection] = useState('userToOther');
 
-  // react-speech-recognition setup
   const {
     transcript,
     listening,
@@ -33,22 +31,16 @@ export default function Home() {
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
 
-  const getSpeechLang = () =>
-    conversationDirection === 'userToOther' ? fromLang : toLang;
-
-  const getTranslateFromLang = () =>
-    conversationDirection === 'userToOther' ? fromLang : toLang;
-
-  const getTranslateToLang = () =>
-    conversationDirection === 'userToOther' ? toLang : fromLang;
+  const getSpeechLang = () => conversationDirection === 'userToOther' ? fromLang : toLang;
+  const getTranslateFromLang = () => conversationDirection === 'userToOther' ? fromLang : toLang;
+  const getTranslateToLang = () => conversationDirection === 'userToOther' ? toLang : fromLang;
 
   useEffect(() => {
-    if (transcript) {
-      setFromText(transcript);
-    }
+    if (transcript) setFromText(transcript);
   }, [transcript]);
 
   const handleTranslate = async () => {
+    if (!fromText.trim()) return;
     setLoading(true);
     setError('');
     setTranslatedText('');
@@ -59,29 +51,43 @@ export default function Home() {
         toLang: getTranslateToLang(),
       });
       setTranslatedText(res.data.translatedText);
-    } catch (err) {
+    } catch {
       setError('Translation failed.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSpeak = async () => {
+  const handleSpeak = () => {
+    if (!translatedText.trim()) return;
     setTtsLoading(true);
     setTtsError('');
     try {
-      const res = await axios.post('/api/translate/speak', {
-        text: translatedText,
-        lang: getTranslateToLang(),
-      });
-      if (res.data.audio) {
-        const audio = new Audio('data:audio/mp3;base64,' + res.data.audio);
-        audio.play();
-      } else {
-        setTtsError('No audio received.');
-      }
-    } catch (err) {
-      setTtsError('Speech failed.');
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(translatedText);
+
+        const loadVoices = () => {
+          const voices = window.speechSynthesis.getVoices();
+          let voice;
+          switch(getTranslateToLang()){
+            case 'hi': voice = voices.find(v => v.lang.includes('hi')); break;
+            case 'es': voice = voices.find(v => v.lang.includes('es')); break;
+            case 'fr': voice = voices.find(v => v.lang.includes('fr')); break;
+            case 'de': voice = voices.find(v => v.lang.includes('de')); break;
+            case 'zh': voice = voices.find(v => v.lang.includes('zh')); break;
+            case 'ar': voice = voices.find(v => v.lang.includes('ar')); break;
+            default: voice = voices.find(v => v.lang.includes('en'));
+          }
+          if (voice) utterance.voice = voice;
+          window.speechSynthesis.speak(utterance);
+        };
+
+        if (!window.speechSynthesis.getVoices().length) {
+          window.speechSynthesis.onvoiceschanged = loadVoices;
+        } else loadVoices();
+      } else setTtsError('Speech synthesis not supported.');
+    } catch {
+      setTtsError('Failed to speak.');
     } finally {
       setTtsLoading(false);
     }
@@ -99,14 +105,9 @@ export default function Home() {
             <select
               className="border rounded p-2 text-sm"
               value={conversationDirection === 'userToOther' ? fromLang : toLang}
-              onChange={e => {
-                if (conversationDirection === 'userToOther') setFromLang(e.target.value);
-                else setToLang(e.target.value);
-              }}
+              onChange={e => conversationDirection === 'userToOther' ? setFromLang(e.target.value) : setToLang(e.target.value)}
             >
-              {LANGUAGES.map(lang => (
-                <option key={lang.code} value={lang.code}>{lang.name}</option>
-              ))}
+              {LANGUAGES.map(lang => <option key={lang.code} value={lang.code}>{lang.name}</option>)}
             </select>
           </div>
           <textarea
@@ -129,7 +130,6 @@ export default function Home() {
                 }
               }}
               disabled={!browserSupportsSpeechRecognition}
-              title="Start speaking"
             >
               <FaMicrophone /> {listening ? 'Stop' : 'Speak'}
             </button>
@@ -137,7 +137,6 @@ export default function Home() {
               className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
               onClick={handleTranslate}
               disabled={loading || !fromText.trim()}
-              title="Translate"
             >
               {loading ? 'Translating...' : 'Translate'}
             </button>
@@ -147,41 +146,31 @@ export default function Home() {
           )}
           {error && <div className="text-red-600 mt-2">{error}</div>}
         </div>
+
         <div className="flex flex-col items-center justify-center">
           <button
             className="bg-gray-200 px-4 py-2 rounded-full shadow flex items-center gap-2 text-lg hover:bg-gray-300"
             onClick={() =>
-              setConversationDirection(
-                conversationDirection === 'userToOther' ? 'otherToUser' : 'userToOther'
-              )
+              setConversationDirection(conversationDirection === 'userToOther' ? 'otherToUser' : 'userToOther')
             }
-            title="Switch conversation direction"
           >
             <FaExchangeAlt className="text-blue-600" />
-            {conversationDirection === 'userToOther'
-              ? 'Other person speaks'
-              : 'You speak'}
+            {conversationDirection === 'userToOther' ? 'Other person speaks' : 'You speak'}
           </button>
           <div className="mt-2 text-sm text-gray-600 text-center max-w-xs">
-            {conversationDirection === 'userToOther'
-              ? 'You speak/type and get translation for the other person.'
-              : 'Other person speaks/types and you get translation.'}
+            {conversationDirection === 'userToOther' ? 'You speak/type and get translation for the other person.' : 'Other person speaks/types and you get translation.'}
           </div>
         </div>
+
         <div className="flex-1 bg-white rounded-lg shadow p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="font-bold text-lg">{conversationDirection === 'userToOther' ? 'Other Person' : 'You'}</span>
             <select
               className="border rounded p-2 text-sm"
               value={conversationDirection === 'userToOther' ? toLang : fromLang}
-              onChange={e => {
-                if (conversationDirection === 'userToOther') setToLang(e.target.value);
-                else setFromLang(e.target.value);
-              }}
+              onChange={e => conversationDirection === 'userToOther' ? setToLang(e.target.value) : setFromLang(e.target.value)}
             >
-              {LANGUAGES.map(lang => (
-                <option key={lang.code} value={lang.code}>{lang.name}</option>
-              ))}
+              {LANGUAGES.map(lang => <option key={lang.code} value={lang.code}>{lang.name}</option>)}
             </select>
           </div>
           <div className="min-h-[48px] border rounded p-2 bg-gray-50 flex items-center justify-between">
@@ -191,7 +180,6 @@ export default function Home() {
                 className="ml-2 bg-green-600 text-white px-3 py-2 rounded-full hover:bg-green-700 disabled:opacity-50 flex items-center gap-1"
                 onClick={handleSpeak}
                 disabled={ttsLoading}
-                title="Play Speech"
               >
                 <FaVolumeUp /> {ttsLoading ? 'Speaking...' : 'Listen'}
               </button>
@@ -200,6 +188,7 @@ export default function Home() {
           {ttsError && <div className="text-red-600 mt-2">{ttsError}</div>}
         </div>
       </div>
+
       <div className="text-center text-gray-500 text-xs mt-6">
         <span>Powered by Google Translate API-X | Speech recognition by your browser</span>
       </div>

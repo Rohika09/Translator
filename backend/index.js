@@ -1,25 +1,54 @@
 import express from 'express';
-import cors from 'cors';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { translate, speak } from 'google-translate-api-x';
 
-import translateRouter from './routes/translate.js';
-import ocrRouter from './routes/ocr.js';
-import phrasesRouter from './routes/phrases.js';
+const router = express.Router();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Translation endpoint
+router.post('/', async (req, res) => {
+  const { text, fromLang, toLang } = req.body;
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+  if (!text || !fromLang || !toLang) {
+    return res.status(400).json({ error: 'Missing required fields: text, fromLang, toLang.' });
+  }
 
+  try {
+    const result = await translate(text, {
+      from: fromLang,
+      to: toLang,
+      client: 'gtx',
+      autoCorrect: true,
+    });
 
-app.use('/api/translate', translateRouter);
-app.use('/api/ocr', ocrRouter);
-app.use('/api/phrases', phrasesRouter);
-
-const PORT = 4000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    res.json({
+      translatedText: result.text,
+      detectedSourceLanguage: result.from.language.iso,
+      didYouMean: result.from.text?.didYouMean ?? false,
+      autoCorrected: result.from.text?.autoCorrected ?? false,
+      value: result.from.text?.value ?? null,
+    });
+  } catch (err) {
+    console.error('Translation error:', err.message);
+    res.status(500).json({ error: 'Translation failed.' });
+  }
 });
+
+// TTS endpoint
+router.post('/speak', async (req, res) => {
+  const { text, lang } = req.body;
+
+  if (!text || !lang) {
+    return res.status(400).json({ error: 'Missing required fields: text, lang.' });
+  }
+
+  try {
+    const audioBase64 = await speak(text, { to: lang });
+    res.json({ audio: audioBase64 });
+  } catch (err) {
+    console.error('TTS error:', err.message);
+    res.status(500).json({ error: 'TTS failed.' });
+  }
+});
+
+export default router;
+
+

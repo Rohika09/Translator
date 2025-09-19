@@ -7,6 +7,10 @@ const EmergencyPhrases = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('hindi');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [playingAudio, setPlayingAudio] = useState(null);
+
+  const categories = Object.keys(phrases);
+  const languages = ['english', 'hindi', 'telugu', 'spanish'];
 
   useEffect(() => {
     const fetchPhrases = async () => {
@@ -14,63 +18,50 @@ const EmergencyPhrases = () => {
         setLoading(true);
         const response = await axios.get('/api/phrases');
         setPhrases(response.data);
-        setLoading(false);
       } catch (err) {
-        console.error('Error fetching phrases:', err);
+        console.error(err);
         setError('Failed to load phrases. Using offline data.');
-        setLoading(false);
-        
-        // Fallback to local data if server is unavailable
         setPhrases({
           emergency: [
-            {
-              english: "Call the police!",
-              hindi: "पुलिस को बुलाओ!",
-              telugu: "పోలీసులను పిలవండి!",
-              spanish: "¡Llama a la policía!"
-            },
-            {
-              english: "Where is the hospital?",
-              hindi: "अस्पताल कहाँ है?",
-              telugu: "ఆసుపత్రి ఎక్కడ ఉంది?",
-              spanish: "¿Dónde está el hospital?"
-            }
+            { english: "Call the police!", hindi: "पुलिस को बुलाओ!", telugu: "పోలీసులను పిలవండి!", spanish: "¡Llama a la policía!" },
+            { english: "Where is the hospital?", hindi: "अस्पताल कहाँ है?", telugu: "ఆసుపత్రి ఎక్కడ ఉంది?", spanish: "¿Dónde está el hospital?" },
           ],
           travel: [
-            {
-              english: "How much does this cost?",
-              hindi: "यह कितने का है?",
-              telugu: "ఇది ఎంత ఖరీదు?",
-              spanish: "¿Cuánto cuesta esto?"
-            }
+            { english: "How much does this cost?", hindi: "यह कितने का है?", telugu: "ఇది ఎంత ఖరీదు?", spanish: "¿Cuánto cuesta esto?" }
           ]
         });
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchPhrases();
   }, []);
 
-  const playAudio = async (audioFile) => {
+  const playAudio = (phrase) => {
+    if (playingAudio) playingAudio.pause();
+
     try {
-      // In a real implementation, this would use the device's TTS or play a local audio file
-      // For this demo, we'll try to fetch from the server but have a fallback
-      const audio = new Audio(`/api/phrases/audio/${audioFile}`);
-      
+      const audio = new Audio(`/api/phrases/audio/${phrase.audio || ''}`);
       audio.onerror = () => {
-        console.error('Audio file not found or cannot be played');
-        // Use browser's speech synthesis as fallback
         if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(
-            phrases[selectedCategory].find(p => p.audio === audioFile)?.english || 'Phrase not found'
-          );
-          speechSynthesis.speak(utterance);
+          const utterance = new SpeechSynthesisUtterance(phrase[selectedLanguage]);
+          const voices = window.speechSynthesis.getVoices();
+          let voice;
+          switch (selectedLanguage) {
+            case 'hindi': voice = voices.find(v => v.lang.includes('hi')); break;
+            case 'spanish': voice = voices.find(v => v.lang.includes('es')); break;
+            case 'telugu': voice = voices.find(v => v.lang.includes('te')); break;
+            default: voice = voices.find(v => v.lang.includes('en'));
+          }
+          if (voice) utterance.voice = voice;
+          window.speechSynthesis.speak(utterance);
         }
       };
-      
+      audio.onended = () => setPlayingAudio(null);
+      setPlayingAudio(audio);
       audio.play();
     } catch (err) {
-      console.error('Error playing audio:', err);
+      console.error('Audio error:', err);
     }
   };
 
@@ -79,60 +70,44 @@ const EmergencyPhrases = () => {
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Emergency & Essential Phrases</h2>
-      <p className="mb-4 text-gray-600">Access critical phrases without internet connectivity</p>
-      
-      {error && <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
-        <p>{error}</p>
-      </div>}
-      
-      <div className="mb-6">
-        <label className="block text-gray-700 mb-2">Category:</label>
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(phrases).map(category => (
+      {error && <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">{error}</div>}
+
+      <div className="mb-4">
+        <label className="block mb-2">Category:</label>
+        <div className="flex gap-2 flex-wrap">
+          {categories.map(cat => (
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded ${selectedCategory === category 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-200 text-gray-800'}`}
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded ${selectedCategory === cat ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
           ))}
         </div>
       </div>
-      
-      <div className="mb-6">
-        <label className="block text-gray-700 mb-2">Language:</label>
-        <select 
-          value={selectedLanguage}
-          onChange={(e) => setSelectedLanguage(e.target.value)}
+
+      <div className="mb-4">
+        <label className="block mb-2">Language:</label>
+        <select
           className="w-full p-2 border rounded"
+          value={selectedLanguage}
+          onChange={e => setSelectedLanguage(e.target.value)}
         >
-          <option value="hindi">Hindi</option>
-          <option value="telugu">Telugu</option>
-          <option value="spanish">Spanish</option>
+          {languages.map(lang => <option key={lang} value={lang}>{lang.charAt(0).toUpperCase() + lang.slice(1)}</option>)}
         </select>
       </div>
-      
+
       <div className="space-y-4">
         {phrases[selectedCategory]?.map((phrase, index) => (
-          <div key={index} className="border rounded p-4 hover:shadow-md transition">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium">{phrase.english}</p>
-                <p className="text-lg mt-1">{phrase[selectedLanguage]}</p>
-              </div>
-              <button 
-                onClick={() => playAudio(phrase.audio)}
-                className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                aria-label="Play audio"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                </svg>
-              </button>
+          <div key={index} className="border rounded p-4 hover:shadow-md flex justify-between items-center">
+            <div>
+              <p className="font-medium">{phrase.english}</p>
+              <p className="mt-1 text-lg">{phrase[selectedLanguage]}</p>
             </div>
+            <button onClick={() => playAudio(phrase)} className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+              🔊
+            </button>
           </div>
         ))}
       </div>
