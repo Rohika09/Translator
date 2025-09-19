@@ -11,6 +11,7 @@
     "axios": "^1.6.0",
     "multer": "^2.0.2",
     "react": "^18.2.0",
+    "react-currency-converter": "^1.0.5",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
     "react-speech-recognition": "^4.0.1",
